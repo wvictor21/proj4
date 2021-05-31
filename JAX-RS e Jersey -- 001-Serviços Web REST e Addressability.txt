@@ -1,0 +1,279 @@
+JAX-RS e Jersey -- 001-Serviços Web REST e Addressability
+01-JAX-RS e Jersey : Domine a criação de webservices REST
+
+
+Serviços Web REST e Addressability Ver primeiro vídeo
+9 / 9
+21min
+Serviços Web REST e Addressability
+Sistemas REST
+Sistemas REST na web
+Configurando o projeto
+O primeiro teste de cliente
+Nosso primeiro recurso
+Rodando o servidor
+Gerenciando usuários
+Arquivos do projeto atual
+
+vídeo
+
+02
+Sistemas REST
+PRÓXIMA ATIVIDADE
+
+Você já conhecia algum framework que facilita o desenvolvimento REST? Em que linguagem?
+Opinião do instrutor
+
+Existem frameworks para facilitar o desenvolvimento REST em diversas linguagens. Alguns famosos são o VRaptor e o JAX-RS em Java, o Rails e o Sinatra em Ruby, o ASP NET MVC em C# etc.
+
+03
+Sistemas REST na web
+PRÓXIMA ATIVIDADE
+
+A API do Twitter, do Facebook etc possuem versões REST, cite alguma API REST que você conheça e compartilhe o link da mesma. Caso não conheça nenhuma, procure nos sites que você utiliza se eles disponibilizam uma API REST.
+Opinião do instrutor
+
+A maior parte das redes sociais, serviços de fotos, imagens, vídeos etc possuem serviços REST expostos na web via http hoje em dia. Do youtube ao instagram, do twitter ao facebook.
+
+
+04
+Configurando o projeto
+PRÓXIMA ATIVIDADE
+
+Caso você tenha conta no github, faça o fork e clone o projeto inicial, existente no link a seguir. https://github.com/alura-cursos/webservices-rest-com-jaxrs-e-jersey
+
+Caso não tenha conta no github e não queira criar uma, basta baixar o zip a seguir e descompactá-lo: https://github.com/alura-cursos/webservices-rest-com-jaxrs-e-jersey/raw/master/loja.zip
+
+Descompacte o arquivo e temos o diretório chamado loja. Vamos importar o projeto dentro do Eclipse. Vamos no Eclipse e escolhemos 'File, Import', 'Existing Projects into Workspace', escolhemos o root directory como sendo o diretório 'loja' que foi descompactado. Ele detecta o projeto e damos 'Finish'.
+
+Confira quais as classes de modelo que seu projeto possui, quais são elas?
+
+Opinião do instrutor
+
+O projeto utilizará as classes de modelo Carrinho e Produto.
+
+
+05
+O primeiro teste de cliente
+PRÓXIMA ATIVIDADE
+
+Crie uma nova classe 'ClienteTest' (em inglês a palavra Test), no nosso pacote br.com.alura.loja. Dentro dessa classe colocaremos o primeiro método de teste:
+
+public void testaQueAConexaoComOServidorFunciona() {
+}COPIAR CÓDIGO
+Coloque a anotação @Test antes do método. Uso o CTRL+SHIFT+O para importar a anotação e tudo o que for necessário. Dentro desse código de teste queremos um cliente http para acessar o servidor, portanto criamos um cliente novo:
+
+Client client = ClientBuilder.newClient();COPIAR CÓDIGO
+Ao importar novamente com CTRL+SHIFT+O lembre-se de escolher a classe Client do pacote javax.ws. Agora que temos um cliente, queremos usar uma URI base,a URI do servidor, para fazer várias requisições. No nosso caso é a URI do servidor que estamos utilizando, o www.mocky.io, portanto dizemos ao nosso cliente que trabalharemos com o alvo http://www.mocky.io:
+
+WebTarget target = client.target("http://www.mocky.io");COPIAR CÓDIGO
+Faça uma requisição para uma URI específica, target, '/v2/52aaf5deee7ba8c70329fb7d' e a requisição que faremos é a mais básica, a que pega dados do servidor, o método get:
+
+String conteudo = target.path("/v2/52aaf5deee7ba8c70329fb7d").request().get(String.class);COPIAR CÓDIGO
+Após fazer a requisição, o cliente devolve o conteúdo para nós. Queremos agora ter certeza que o conteúdo contem a 'Rua Vergueiro 3185', que ela contem o pedaço do xml que nos interessa. Nesse caso estou dizendo que somente estou interessado na rua:
+
+Assert.assertTrue(conteudo.contains("<rua>Rua Vergueiro 3185"));COPIAR CÓDIGO
+Clique da direita em seu teste e escolha Run as, Junit test. O teste passou? Ficou verde? Compartilhe aqui o código de sua classe.
+
+RESPONDA
+Opinião do instrutor
+
+package br.com.alura.loja;
+
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
+
+import junit.framework.Assert;
+
+import org.junit.Test;
+
+public class ClienteTest {
+
+    @Test
+    public void testaQueAConexaoComOServidorFunciona() {
+        Client client = ClientBuilder.newClient();
+        WebTarget target = client.target("http://www.mocky.io");
+        String conteudo = target.path("/v2/52aaf5deee7ba8c70329fb7d").request().get(String.class);
+        Assert.assertTrue(conteudo.contains("<rua>Rua Vergueiro 3185"));
+
+
+    }
+}COPIAR CÓDIGO
+
+06
+Nosso primeiro recurso
+PRÓXIMA ATIVIDADE
+
+Crie sua classe de recurso dentro do pacote resource:
+
+@Path("carrinhos")
+public class CarrinhoResource {
+
+}COPIAR CÓDIGO
+Adicione um método busca que retorna String. Dentro do método instancie o CarrinhoDAO e chame o método de busca com o id 1l. Retorne a versão xml do carrinho invocando seu método (ainda inexistente) toXML.
+
+Anote o método com @GET e @Produces(MediaType.APPLICATION_XML).
+
+Crie o método toXML no seu Carrinho, instanciando um objeto do tipo XStream e chamando o método toXML passando o this como argumento. Compartilhe aqui o código de sua classe de recurso.
+
+RESPONDA
+Opinião do instrutor
+
+package br.com.alura.loja.resource;
+
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
+import br.com.alura.loja.dao.CarrinhoDAO;
+import br.com.alura.loja.modelo.Carrinho;
+
+@Path("carrinhos")
+public class CarrinhoResource {
+
+    @GET
+    @Produces(MediaType.APPLICATION_XML)
+    public String busca() {
+        Carrinho carrinho = new CarrinhoDAO().busca(1l);
+        return carrinho.toXML();
+    }
+
+}COPIAR CÓDIGO
+
+07
+Rodando o servidor
+PRÓXIMA ATIVIDADE
+
+Crie uma classe chamada Servidor no pacote loja com o método main. Dentro do método, instancie o servidor passando como argumento a uri e a config:
+
+HttpServer server = GrizzlyHttpServerFactory.createHttpServer(uri, config);COPIAR CÓDIGO
+Crie a uri baseada em localhost e porta 8080:
+
+        URI uri = URI.create("http://localhost:8080/");COPIAR CÓDIGO
+Defina a configuração baseada em todas as classes do pacote loja:
+
+ResourceConfig config = new ResourceConfig().packages("br.com.alura.loja");COPIAR CÓDIGO
+Imprima uma mensagem de rodando e aguarde ao término da execução quando o usuário aperta enter:
+
+        System.out.println("Servidor rodando");
+        System.in.read();
+        server.stop();COPIAR CÓDIGO
+Rode seu servidor e quando o mesmo estiver rodando tente acessar a uri `http://localhost:8080/carrinhos' em seu navegador. Compartilhe aqui o código de seu servidor.
+
+RESPONDA
+Opinião do instrutor
+
+public class Servidor {
+
+    public static void main(String[] args) throws IOException {
+        ResourceConfig config = new ResourceConfig().packages("br.com.alura.loja");
+        URI uri = URI.create("http://localhost:8080/");
+        HttpServer server = GrizzlyHttpServerFactory.createHttpServer(uri, config);
+        System.out.println("Servidor rodando");
+        System.in.read();
+        server.stop();
+    }
+
+}COPIAR CÓDIGO
+ DISCUTIR NO FORUM
+ 
+
+08
+Gerenciando usuários
+PRÓXIMA ATIVIDADE
+
+Crie uma classe Projeto no mesmo pacote de seu Carrinho. Coloque três campos privados, uma String nome, um long id e um int anoDeInicio. Coloque um construtor que inicializa os três campos, e adicione os três getters. Coloque o setter do id e adicione também um construtor sem argumentos.
+
+Crie agora um DAO para nosso projeto:
+
+package br.com.alura.loja.dao;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
+
+import br.com.alura.loja.modelo.Projeto;
+
+public class ProjetoDAO {
+
+    private static Map<Long, Projeto> banco = new HashMap<Long, Projeto>();
+    private static AtomicLong contador = new AtomicLong(1);
+
+    static {
+        banco.put(1l, new Projeto(1l, "Minha loja", 2014));
+        banco.put(2l, new Projeto(2l, "Alura", 2012));
+    }
+
+    public void adiciona(Projeto projeto) {
+        long id = contador.incrementAndGet();
+        projeto.setId(id);
+        banco.put(id, projeto);
+    }
+
+    public Projeto busca(Long id) {
+        return banco.get(id);
+    }
+
+    public Projeto remove(long id) {
+        return banco.remove(id);
+    }
+
+}COPIAR CÓDIGO
+Defina o método toXML de seu Projeto. Crie um ProjetoResource que contem um método de busca e traz o primeiro projeto de seu DAO. Crie um método de teste que garante o resultado do acesso a URI http://localhost:8080/projetos. Compartilhe aqui seu código de teste e o ProjetoResource.
+
+RESPONDA
+Opinião do instrutor
+
+Teste:
+
+@Test
+    public void testaQueAConexaoComOServidorFuncionaNoPathDeProjetos() {
+        Client client = ClientBuilder.newClient();
+        WebTarget target = client.target("http://localhost:8080");
+        String conteudo = target.path("/projetos").request().get(String.class);
+        Assert.assertTrue(conteudo.contains("<nome>Minha loja"));
+
+
+    }COPIAR CÓDIGO
+ProjetoResource:
+
+@Path("projetos")
+public class ProjetoResource {
+
+    @GET
+    @Produces(MediaType.APPLICATION_XML)
+    public String busca() {
+        Projeto projeto = new ProjetoDAO().busca(1l);
+        return projeto.toXML();
+    }
+
+}COPIAR CÓDIGO
+ DISCUTIR NO FORUM
+
+
+09
+Arquivos do projeto atual
+PRÓXIMA ATIVIDADE
+
+No link abaixo, você encontra o projeto até o momento atual do curso.
+
+https://github.com/alura-cursos/Curso-JAX-RS-e-Jersey-Domine-a-cria-o-de-webservices-REST/archive/capitulo1.zip
+
+VER OPINIÃO DO INSTRUTOR
+Opinião do instrutor
+
+Lembre-se de usar o fórum em caso de dúvidas.
+
+
+
+
+
+
+
+
+
+
+
+
